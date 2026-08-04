@@ -1,0 +1,34 @@
+{#- Central configuration map for the aptmirror formula. #}
+{% import_yaml 'aptmirror/defaults.yml' as defaults %}
+
+{% set os_lookup = salt['grains.filter_by']({
+  'Debian': {
+    'script': '/usr/local/bin/apt-mirror',
+    'config': '/etc/apt-mirror/mirror.list',
+    'config_dir': '/etc/apt-mirror',
+    'service_unit': '/etc/systemd/system/apt-mirror-sync.service',
+    'timer_unit': '/etc/systemd/system/apt-mirror-sync.timer',
+    'timer_service': 'apt-mirror-sync.timer',
+  },
+}, grain='os_family', default='Debian') %}
+
+{% do defaults.lookup.update(os_lookup) %}
+{% set aptmirror = salt['slsutil.merge'](
+  defaults,
+  salt['pillar.get']('aptmirror', {}),
+  strategy='recurse',
+  merge_lists=False,
+) %}
+
+{% if not aptmirror.settings.defaultarch %}
+  {% do aptmirror.settings.update({
+    'defaultarch': salt['grains.get']('osarch', 'amd64'),
+  }) %}
+{% endif %}
+
+{% set os_name = salt['grains.get']('os', '') %}
+{% set os_major = salt['grains.get']('osrelease_info', [0])[0]|int %}
+{% set supported = (
+  (os_name == 'Debian' and os_major in [12, 13]) or
+  (os_name == 'Ubuntu' and os_major in [22, 24, 26])
+) %}

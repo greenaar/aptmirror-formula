@@ -1,0 +1,36 @@
+[Unit]
+Description=Synchronize configured APT mirrors
+Documentation=https://github.com/apt-mirror/apt-mirror
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists={{ aptmirror.lookup.config }}
+
+[Service]
+Type=oneshot
+User={{ aptmirror.user.name }}
+Group={{ aptmirror.user.group }}
+WorkingDirectory={{ aptmirror.paths.base }}
+ExecStart={{ aptmirror.lookup.script }} {{ aptmirror.lookup.config }}
+Nice={{ aptmirror.schedule.nice }}
+IOSchedulingClass={{ aptmirror.schedule.io_class }}
+IOSchedulingPriority={{ aptmirror.schedule.io_priority }}
+UMask=0022
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectClock=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectHostname=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectSystem=strict
+ReadWritePaths={{ aptmirror.paths.base }}
+{%- for path in aptmirror.schedule.extra_read_write_paths %}
+ReadWritePaths={{ path }}
+{%- endfor %}
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true

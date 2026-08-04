@@ -1,0 +1,84 @@
+lookup:
+  script: /usr/local/bin/apt-mirror
+  config: /etc/apt-mirror/mirror.list
+  config_dir: /etc/apt-mirror
+  service_unit: /etc/systemd/system/apt-mirror-sync.service
+  timer_unit: /etc/systemd/system/apt-mirror-sync.timer
+  timer_service: apt-mirror-sync.timer
+
+distribution_package: apt-mirror
+remove_distribution_package: true
+dependency_packages:
+  - perl
+  - wget
+  - ca-certificates
+  - dpkg
+  - coreutils
+  - gzip
+  - bzip2
+  - xz-utils
+  - zstd
+
+user:
+  name: apt-mirror
+  group: apt-mirror
+  shell: /usr/sbin/nologin
+
+paths:
+  base: /var/spool/apt-mirror
+  mirror: /var/spool/apt-mirror/mirror
+  skel: /var/spool/apt-mirror/skel
+  var: /var/spool/apt-mirror/var
+  clean_script: /var/spool/apt-mirror/var/clean.sh
+  postmirror_script: /var/spool/apt-mirror/var/postmirror.sh
+
+settings:
+  defaultarch: null
+  nthreads: 20
+  limit_rate: ''
+  retries: 5
+  connect_timeout: 20
+  read_timeout: 120
+  contents: true
+  installer: false
+  dep11: true
+  command_not_found: true
+  translations: en
+  autoclean: false
+  tilde: false
+  allow_insecure: false
+  verify_hashes: true
+  require_sha256: true
+  auth_no_challenge: false
+  no_check_certificate: false
+  unlink: false
+  use_proxy: false
+  http_proxy: ''
+  https_proxy: ''
+  proxy_user: ''
+  proxy_password: ''
+  certificate: ''
+  private_key: ''
+  ca_certificate: ''
+
+mirrors: []
+raw_lines: []
+skip_clean: []
+
+postmirror:
+  enabled: false
+  source: null
+  contents: null
+  contents_pillar: null
+  template: jinja
+  context: {}
+
+schedule:
+  enabled: false
+  on_calendar: '*-*-* 03:00:00'
+  randomized_delay: 30m
+  persistent: true
+  nice: 10
+  io_class: best-effort
+  io_priority: 7
+  extra_read_write_paths: []

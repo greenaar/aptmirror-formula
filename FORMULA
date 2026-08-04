@@ -1,0 +1,9 @@
+name: aptmirror
+os: Debian, Raspbian, Ubuntu
+os_family: Debian
+version: 1.0.0
+release: 1
+minimum_version: 3006
+summary: 'aptmirror formula'
+description: 'Installs a vendored and locally maintained copy of the Perl apt-mirror utility, configures one or more Debian-style mirrors, and optionally schedules synchronization with a hardened systemd timer.'
+top_level_dir: aptmirror

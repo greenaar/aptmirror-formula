@@ -1,0 +1,59 @@
+# Managed by Salt. Local changes will be overwritten.
+
+set defaultarch {{ aptmirror.settings.defaultarch }}
+set base_path {{ aptmirror.paths.base }}
+set mirror_path {{ aptmirror.paths.mirror }}
+set skel_path {{ aptmirror.paths.skel }}
+set var_path {{ aptmirror.paths.var }}
+set cleanscript {{ aptmirror.paths.clean_script }}
+set postmirror_script {{ aptmirror.paths.postmirror_script }}
+set run_postmirror {{ 1 if aptmirror.postmirror.enabled else 0 }}
+set nthreads {{ aptmirror.settings.nthreads }}
+set limit_rate {{ aptmirror.settings.limit_rate|default('', true)|yaml_dquote }}
+set retries {{ aptmirror.settings.retries }}
+set connect_timeout {{ aptmirror.settings.connect_timeout }}
+set read_timeout {{ aptmirror.settings.read_timeout }}
+set _contents {{ 1 if aptmirror.settings.contents else 0 }}
+set _installer {{ 1 if aptmirror.settings.installer else 0 }}
+set _dep11 {{ 1 if aptmirror.settings.dep11 else 0 }}
+set _cnf {{ 1 if aptmirror.settings.command_not_found else 0 }}
+set _translations {{ aptmirror.settings.translations }}
+set _autoclean {{ 1 if aptmirror.settings.autoclean else 0 }}
+set _tilde {{ 1 if aptmirror.settings.tilde else 0 }}
+set allow_insecure {{ 1 if aptmirror.settings.allow_insecure else 0 }}
+set verify_hashes {{ 1 if aptmirror.settings.verify_hashes else 0 }}
+set require_sha256 {{ 1 if aptmirror.settings.require_sha256 else 0 }}
+set auth_no_challenge {{ 1 if aptmirror.settings.auth_no_challenge else 0 }}
+set no_check_certificate {{ 1 if aptmirror.settings.no_check_certificate else 0 }}
+set unlink {{ 1 if aptmirror.settings.unlink else 0 }}
+set use_proxy {{ 'on' if aptmirror.settings.use_proxy else 'off' }}
+set http_proxy {{ aptmirror.settings.http_proxy|default('', true)|yaml_dquote }}
+set https_proxy {{ aptmirror.settings.https_proxy|default('', true)|yaml_dquote }}
+set proxy_user {{ aptmirror.settings.proxy_user|default('', true)|yaml_dquote }}
+set proxy_password {{ aptmirror.settings.proxy_password|default('', true)|yaml_dquote }}
+set certificate {{ aptmirror.settings.certificate|default('', true)|yaml_dquote }}
+set private_key {{ aptmirror.settings.private_key|default('', true)|yaml_dquote }}
+set ca_certificate {{ aptmirror.settings.ca_certificate|default('', true)|yaml_dquote }}
+
+{%- for mirror in aptmirror.mirrors %}
+# {{ mirror.get('name', mirror.uri) }}
+  {%- set architectures = mirror.get('architectures', [aptmirror.settings.defaultarch]) %}
+  {%- set options = ' [arch=' ~ architectures|join(',') ~ ']' if architectures else '' %}
+  {%- for suite in mirror.suites %}
+deb{{ options }} {{ mirror.uri }} {{ suite }} {{ mirror.components|join(' ') }}
+    {%- if mirror.get('sources', false) %}
+deb-src {{ mirror.uri }} {{ suite }} {{ mirror.components|join(' ') }}
+    {%- endif %}
+  {%- endfor %}
+  {%- if mirror.get('clean', true) %}
+clean {{ mirror.uri }}
+  {%- endif %}
+{%- endfor %}
+
+{%- for uri in aptmirror.skip_clean %}
+skip-clean {{ uri }}
+{%- endfor %}
+
+{%- for line in aptmirror.raw_lines %}
+{{ line }}
+{%- endfor %}

@@ -1,0 +1,12 @@
+[Unit]
+Description=Schedule APT mirror synchronization
+
+[Timer]
+OnCalendar={{ aptmirror.schedule.on_calendar }}
+RandomizedDelaySec={{ aptmirror.schedule.randomized_delay }}
+Persistent={{ 'true' if aptmirror.schedule.persistent else 'false' }}
+Unit=apt-mirror-sync.service
+
+[Install]
+WantedBy=timers.target
+
